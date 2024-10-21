@@ -72,6 +72,7 @@ def webhook():
                 resp.message("Here is your virtual try-on result!")
             else:
                 resp.message("Sorry, something went wrong with the try-on process.")
+                del user_sessions[sender_number]
             # Clear session after completion
             del user_sessions[sender_number]
         else:
