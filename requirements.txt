@@ -2,7 +2,6 @@ setuptools
 Flask
 twilio
 requests
-opencv-python
 numpy
 gradio-client
 python-dotenv
