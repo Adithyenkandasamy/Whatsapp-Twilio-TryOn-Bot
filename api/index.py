@@ -139,11 +139,12 @@ def send_to_gradio(person_image_url, garment_image_url):
 
 # Helper function to send media message via Twilio
 def send_media_message(to_number, media_url):
+    print(to_number)
     message = client.messages.create(
         from_=f'whatsapp:{TWILIO_PHONE_NUMBER}',  # Twilio sandbox number
         body="Here is your virtual try-on result:",
         media_url=[media_url],  # Public URL of the media
-        to=to_number
+        to="+919080338368"
     )
     print(f"Sent media message to {to_number}. Message SID: {message.sid}")
 
