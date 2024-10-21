@@ -35,34 +35,36 @@ SERVER_URL = os.getenv("SERVER_URL")
 # Webhook route to handle POST requests from Twilio
 @app.route('/webhook', methods=['POST'])
 def webhook():
+
     sender_number = request.form.get('From')  # User's WhatsApp number
+    if sender_number not in user_sessions:
+        user_sessions[sender_number] = {}
+    
+    urls = []
     media_url = request.form.get('MediaUrl0')  # URL of the media if an image is sent
+    urls.append(media_url)
 
     # Log the media URL
     print(f"Received media URL: {media_url}")
 
-    # Create a response object for Twilio
     resp = MessagingResponse()
 
-    # If no image is received, inform the user
     if media_url is None:
         resp.message("We didn't receive an image. Please try sending your image again.")
         return str(resp)
 
-    # Initialize the user session if it does not exist
-    if sender_number not in user_sessions:
-        user_sessions[sender_number] = {}
-
     # Step 1: Check if the person image is uploaded
     if 'person_image' not in user_sessions[sender_number]:
+        person_media_url = urls[-1]
         # Store the first image as the person's image
-        user_sessions[sender_number]['person_image'] = media_url
+        user_sessions[sender_number]['person_image'] = person_media_url
         resp.message("Great! Now please send the image of the garment you want to try on.")
     
     # Step 2: Check if the garment image is uploaded
     elif 'garment_image' not in user_sessions[sender_number]:
         # Store the second image as the garment's image
-        user_sessions[sender_number]['garment_image'] = media_url
+        garment_media_url = urls[-1]
+        user_sessions[sender_number]['garment_image'] = garment_media_url
         
         # Now both images are collected, send them to the Gradio API for virtual try-on
         person_image_url = user_sessions[sender_number]['person_image']
