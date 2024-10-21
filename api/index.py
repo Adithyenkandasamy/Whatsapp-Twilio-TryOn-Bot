@@ -91,11 +91,10 @@ def webhook():
 # Function to interact with the Gradio API
 def send_to_gradio(person_image_url, garment_image_url):
     print("Making Directory")
-    os.makedirs("images")
     
     # Download both images from Twilio
-    person_image_path = download_image(person_image_url, 'images/person_image.jpg')
-    garment_image_path = download_image(garment_image_url, 'images/garment_image.jpg')
+    person_image_path = download_image(person_image_url, '/tmp/person_image.jpg')
+    garment_image_path = download_image(garment_image_url, '/tmp/garment_image.jpg')
 
     if person_image_path is None or garment_image_path is None:
         print("Error: One of the images could not be downloaded.")
@@ -122,22 +121,16 @@ def send_to_gradio(person_image_url, garment_image_url):
             try_on_image_path = result[0]  # First item in result is the output image path
             print(f"Generated try-on image path: {try_on_image_path}")
 
-            # Ensure the static directory exists
-            static_dir = 'static'
-            if not os.path.exists(static_dir):
-                os.makedirs(static_dir)
-                print(f"Created directory: {static_dir}")
-
             # Make sure the path exists
             if os.path.exists(try_on_image_path):
                 # Open the image using PIL and save it as PNG
                 img = Image.open(try_on_image_path)
-                target_path_png = os.path.join(static_dir, 'result.png')
+                target_path_png = os.path.join("/tmp/", 'result.png')
                 img.save(target_path_png, 'PNG')
                 print(f"Image saved to: {target_path_png}")
 
                 # Return the public URL for the image as PNG
-                return url_for('serve_static_file', filename='result.png', _external=True)
+                return url_for('serve_static_file', filename='/tmp/result.png', _external=True)
             else:
                 print(f"Image not found at: {try_on_image_path}")
                 return None
