@@ -90,9 +90,12 @@ def webhook():
 
 # Function to interact with the Gradio API
 def send_to_gradio(person_image_url, garment_image_url):
+    print("Making Directory")
+    os.makedirs("images")
+    
     # Download both images from Twilio
-    person_image_path = download_image(person_image_url, 'person_image.jpg')
-    garment_image_path = download_image(garment_image_url, 'garment_image.jpg')
+    person_image_path = download_image(person_image_url, 'images/person_image.jpg')
+    garment_image_path = download_image(garment_image_url, 'images/garment_image.jpg')
 
     if person_image_path is None or garment_image_path is None:
         print("Error: One of the images could not be downloaded.")
@@ -183,6 +186,7 @@ def download_image(media_url, filename):
         if response.status_code == 200:
             # Save the image locally using PIL
             with Image.open(requests.get(image_url, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN), stream=True).raw) as img:
+                print(img)
                 img.save(filename)
             print(f"Image downloaded successfully as {filename}.")
             return filename
