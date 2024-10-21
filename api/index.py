@@ -1,6 +1,6 @@
 import os
 import requests
-import cv2
+from PIL import Image
 import numpy as np
 from flask import Flask, request, send_from_directory, url_for
 from twilio.twiml.messaging_response import MessagingResponse
@@ -23,6 +23,7 @@ user_sessions = {}
 # Twilio credentials loaded from .env file
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = "+16197357001"
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 # Gradio Client for Nymbo Virtual Try-On API
@@ -117,10 +118,10 @@ def send_to_gradio(person_image_url, garment_image_url):
 
             # Make sure the path exists
             if os.path.exists(try_on_image_path):
-                # Convert the image to PNG format and save it
-                img = cv2.imread(try_on_image_path)
+                # Open the image using PIL and save it as PNG
+                img = Image.open(try_on_image_path)
                 target_path_png = os.path.join(static_dir, 'result.png')
-                cv2.imwrite(target_path_png, img)
+                img.save(target_path_png, 'PNG')
                 print(f"Image saved to: {target_path_png}")
 
                 # Return the public URL for the image as PNG
@@ -139,7 +140,7 @@ def send_to_gradio(person_image_url, garment_image_url):
 # Helper function to send media message via Twilio
 def send_media_message(to_number, media_url):
     message = client.messages.create(
-        from_='whatsapp:+14155238886',  # Twilio sandbox number
+        from_=f'whatsapp:{TWILIO_PHONE_NUMBER}',  # Twilio sandbox number
         body="Here is your virtual try-on result:",
         media_url=[media_url],  # Public URL of the media
         to=to_number
@@ -170,9 +171,9 @@ def download_image(media_url, filename):
         response = requests.get(image_url, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN))
         
         if response.status_code == 200:
-            # Save the image locally
-            with open(filename, 'wb') as f:
-                f.write(response.content)
+            # Save the image locally using PIL
+            with Image.open(requests.get(image_url, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN), stream=True).raw) as img:
+                img.save(filename)
             print(f"Image downloaded successfully as {filename}.")
             return filename
         else:
