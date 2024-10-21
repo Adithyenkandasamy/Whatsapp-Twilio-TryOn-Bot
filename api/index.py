@@ -36,7 +36,7 @@ SERVER_URL = os.getenv("SERVER_URL")
 @app.route('/webhook', methods=['POST'])
 def webhook():
     sender_number = request.form.get('From')  # User's WhatsApp number
-    media_url = request.form.get('MediaUrl0')  # URL of the media if image is sent
+    media_url = request.form.get('MediaUrl0')  # URL of the media if an image is sent
 
     # Log the media URL
     print(f"Received media URL: {media_url}")
@@ -49,38 +49,41 @@ def webhook():
         resp.message("We didn't receive an image. Please try sending your image again.")
         return str(resp)
 
-    # Step 1: Check if person image is uploaded
+    # Initialize the user session if it does not exist
     if sender_number not in user_sessions:
         user_sessions[sender_number] = {}
-        if media_url:
-            user_sessions[sender_number]['person_image'] = media_url
-            resp.message("Great! Now please send the image of the garment you want to try on.")
-        else:
-            resp.message("Please send your image to begin the virtual try-on process.")
-    # Step 2: Check if garment image is uploaded
-    elif 'person_image' in user_sessions[sender_number] and 'garment_image' not in user_sessions[sender_number]:
-        print("Garment Media URL: ")
-        print(media_url)
-        if media_url:
-            print("Media URL: ", media_url)
-            user_sessions[sender_number]['garment_image'] = media_url
-            # Now both images are collected, send them to the Gradio API for virtual try-on
-            try_on_image_url = send_to_gradio(user_sessions[sender_number]['person_image'], media_url)
-            print("Try On Image URL", try_on_image_url)
-            if try_on_image_url:
-                # Send the image as a WhatsApp media message
-                send_media_message(sender_number, try_on_image_url)
-                resp.message("Here is your virtual try-on result!")
-            else:
-                resp.message("Sorry, something went wrong with the try-on process.")
-            # Clear session after completion
-            del user_sessions[sender_number]
-        else:
-            resp.message("Please send the garment image to complete the process.")
-    else:
-        # If both images have already been received, start the process again
-        resp.message("Please send your image to begin the virtual try-on process.")
 
+    # Step 1: Check if the person image is uploaded
+    if 'person_image' not in user_sessions[sender_number]:
+        # Store the first image as the person's image
+        user_sessions[sender_number]['person_image'] = media_url
+        resp.message("Great! Now please send the image of the garment you want to try on.")
+    
+    # Step 2: Check if the garment image is uploaded
+    elif 'garment_image' not in user_sessions[sender_number]:
+        # Store the second image as the garment's image
+        user_sessions[sender_number]['garment_image'] = media_url
+        
+        # Now both images are collected, send them to the Gradio API for virtual try-on
+        person_image_url = user_sessions[sender_number]['person_image']
+        garment_image_url = user_sessions[sender_number]['garment_image']
+        
+        try_on_image_url = send_to_gradio(person_image_url, garment_image_url)
+        
+        if try_on_image_url:
+            # Send the virtual try-on result as a media message
+            send_media_message(sender_number, try_on_image_url)
+            resp.message("Here is your virtual try-on result!")
+        else:
+            resp.message("Sorry, something went wrong with the try-on process.")
+        
+        # Clear session after completion
+        del user_sessions[sender_number]
+    
+    else:
+        # If both images have already been received, inform the user and restart the process
+        resp.message("You've already completed the process. Please send your image to begin a new virtual try-on session.")
+    
     return str(resp)
 
 # Function to interact with the Gradio API
