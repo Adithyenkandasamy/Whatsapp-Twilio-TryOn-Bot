@@ -60,9 +60,11 @@ def webhook():
     # Step 2: Check if garment image is uploaded
     elif 'person_image' in user_sessions[sender_number] and 'garment_image' not in user_sessions[sender_number]:
         if media_url:
+            print("Media URL: ", media_url)
             user_sessions[sender_number]['garment_image'] = media_url
             # Now both images are collected, send them to the Gradio API for virtual try-on
             try_on_image_url = send_to_gradio(user_sessions[sender_number]['person_image'], media_url)
+            print("Try On Image URL", try_on_image_url)
             if try_on_image_url:
                 # Send the image as a WhatsApp media message
                 send_media_message(sender_number, try_on_image_url)
