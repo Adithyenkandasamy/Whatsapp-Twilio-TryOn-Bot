@@ -59,6 +59,7 @@ def webhook():
             resp.message("Please send your image to begin the virtual try-on process.")
     # Step 2: Check if garment image is uploaded
     elif 'person_image' in user_sessions[sender_number] and 'garment_image' not in user_sessions[sender_number]:
+        print("Media URL: ", media_url)
         if media_url:
             print("Media URL: ", media_url)
             user_sessions[sender_number]['garment_image'] = media_url
