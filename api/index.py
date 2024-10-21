@@ -23,7 +23,7 @@ user_sessions = {}
 # Twilio credentials loaded from .env file
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_PHONE_NUMBER = "+16197357001"
+TWILIO_PHONE_NUMBER = "+14155238886"
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 # Gradio Client for Nymbo Virtual Try-On API
