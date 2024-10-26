@@ -144,6 +144,7 @@ def send_media_message(to_number, media_url):
         media_url=[media_url],  # Public URL of the media
         to=to_number
     )
+    print("media url",media_url)
     print(f"Sent media message to {to_number}. Message SID: {message.sid}")
 
 # Helper function to download an image from Twilio using the Twilio API
@@ -194,4 +195,4 @@ def serve_static_file(filename):
         return "File not found", 404
 
 if __name__ == '__main__':
-    app.run(port=8080)
+    app.run(port=8081)
