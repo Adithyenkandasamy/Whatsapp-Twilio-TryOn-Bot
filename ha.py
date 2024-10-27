@@ -4,11 +4,11 @@ import cv2
 
 IMAGE_URL = "/home/yellowflash/Magizh-tech/Whatsapp-Twilio-TryOn-Bot/static/result.png"
 
-gradio_client = GradioClient("Nymbo/Virtual-Try-On")
+gradio_client = GradioClient("Nymbo/Virtual-Try-On","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")
 
 def send_to_gradio():
     # Download both images from Twilio
-    person_image_path = "/home/yellowflash/Magizh-tech/Whatsapp-Twilio-TryOn-Bot/WhatsApp Image 2024-10-26 at 7.07.49 PM.jpeg"
+    person_image_path = "/home/yellowflash/Magizh-tech/Whatsapp-Twilio-TryOn-Bot/person_image.jpg"
     garment_image_path = "/home/yellowflash/Magizh-tech/Whatsapp-Twilio-TryOn-Bot/akatsuki.jpg"
 
     if person_image_path is None or garment_image_path is None:
